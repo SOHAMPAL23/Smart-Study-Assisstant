@@ -190,7 +190,29 @@ const NormalStudyGuideDisplay: React.FC<{ data: NormalStudyData }> = ({ data }) 
 );
 
 const MathQuestionDisplay: React.FC<{ data: MathStudyData }> = ({ data }) => {
-    const [showAnswer, setShowAnswer] = useState(false);
+    const [userAnswer, setUserAnswer] = useState<string>('');
+    const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+    const [showSolution, setShowSolution] = useState<boolean>(false);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitted(true);
+    };
+
+    const handleReset = () => {
+        setUserAnswer('');
+        setIsSubmitted(false);
+        setShowSolution(false);
+    };
+
+    // Simple answer comparison (can be enhanced for mathematical expressions)
+    const isAnswerCorrect = (): boolean => {
+        if (!userAnswer.trim() || !data.answer.trim()) return false;
+        // For now, we'll do a simple string comparison
+        // This could be enhanced to handle mathematical expressions
+        return userAnswer.trim().toLowerCase() === data.answer.trim().toLowerCase();
+    };
+
     return(
         <div className="space-y-8">
             <Section title="Quantitative Question" icon={<CalculatorIcon className="w-6 h-6"/>}>
@@ -204,33 +226,136 @@ const MathQuestionDisplay: React.FC<{ data: MathStudyData }> = ({ data }) => {
                     <p className="text-lg whitespace-pre-wrap text-gray-200">{data.question}</p>
                 </div>
             </Section>
-            {!showAnswer && (
-                <button onClick={() => setShowAnswer(true)} className="w-full px-6 py-4 text-base font-medium rounded-lg text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/20 flex items-center justify-center">
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    </svg>
-                    Show Solution
-                </button>
-            )}
-            {showAnswer && (
-                <div className="animate-fade-slide-in space-y-8">
-                    <Section title="Answer" icon={<BookOpenCheckIcon className="w-6 h-6"/>}>
-                        <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border-l-4 border-green-500 p-5 rounded-r-lg">
-                           <p className="text-green-200 font-bold text-xl">{data.answer}</p>
-                        </div>
-                    </Section>
-                    <Section title="Explanation" icon={<SparklesIcon className="w-6 h-6"/>}>
-                         <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 p-6 rounded-lg shadow-lg border border-gray-700">
-                            <div className="flex items-start mb-3">
-                                <div className="bg-cyan-500/20 p-2 rounded-lg mr-3">
-                                    <SparklesIcon className="w-5 h-5 text-cyan-400" />
+
+            {!isSubmitted ? (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="math-answer" className="block text-lg font-medium text-gray-300 mb-2">
+                            Your Answer:
+                        </label>
+                        <input
+                            type="text"
+                            id="math-answer"
+                            value={userAnswer}
+                            onChange={(e) => setUserAnswer(e.target.value)}
+                            className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 backdrop-blur-sm"
+                            placeholder="Enter your answer here"
+                        />
+                    </div>
+                    <button 
+                        type="submit" 
+                        disabled={!userAnswer.trim()}
+                        className="w-full px-6 py-3 text-base font-medium rounded-lg text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed transition-all duration-200"
+                    >
+                        Submit Answer
+                    </button>
+                </form>
+            ) : (
+                <div className="space-y-6">
+                    <div className="bg-gray-800/50 p-6 rounded-lg shadow-lg border border-gray-700">
+                        <h3 className="text-xl font-bold text-gray-200 mb-4">Your Response</h3>
+                        
+                        {isAnswerCorrect() ? (
+                            <div className="border-l-4 border-green-500 bg-green-900/30 p-4 rounded-r-lg">
+                                <div className="flex items-center mb-2">
+                                    <svg className="w-6 h-6 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <p className="font-bold text-green-400 text-lg">Correct!</p>
                                 </div>
-                                <p className="font-medium text-cyan-300">Step-by-step solution:</p>
+                                <p className="text-gray-200">
+                                    Your answer: <span className="font-mono bg-gray-900/50 px-2 py-1 rounded">{userAnswer}</span>
+                                </p>
                             </div>
-                            <p className="whitespace-pre-wrap text-gray-300">{data.explanation}</p>
+                        ) : (
+                            <div>
+                                <div className="border-l-4 border-red-500 bg-red-900/30 p-4 rounded-r-lg mb-4">
+                                    <div className="flex items-center mb-2">
+                                        <svg className="w-6 h-6 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                        <p className="font-bold text-red-400 text-lg">Incorrect</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-gray-200">
+                                            Your answer: <span className="font-mono bg-gray-900/50 px-2 py-1 rounded">{userAnswer}</span>
+                                        </p>
+                                        <p className="text-gray-200">
+                                            Correct answer: <span className="font-mono bg-gray-900/50 px-2 py-1 rounded">{data.answer}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button 
+                            onClick={() => setShowSolution(true)}
+                            className="flex-1 px-6 py-3 text-base font-medium rounded-lg text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/20 flex items-center justify-center"
+                        >
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            Show Solution
+                        </button>
+                        <button 
+                            onClick={handleReset}
+                            className="px-6 py-3 text-base font-medium rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition-all duration-200 flex items-center justify-center"
+                        >
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Try Again
+                        </button>
+                    </div>
+
+                    {showSolution && (
+                        <div className="animate-fade-slide-in space-y-8">
+                            <Section title="Step-by-Step Solution" icon={<SparklesIcon className="w-6 h-6"/>}>
+                                <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 p-6 rounded-lg shadow-lg border border-gray-700">
+                                    <div className="flex items-start mb-3">
+                                        <div className="bg-cyan-500/20 p-2 rounded-lg mr-3">
+                                            <SparklesIcon className="w-5 h-5 text-cyan-400" />
+                                        </div>
+                                        <p className="font-medium text-cyan-300">Detailed explanation:</p>
+                                    </div>
+                                    <div className="whitespace-pre-wrap text-gray-300">
+                                        {data.explanation.split('\n').map((line, index) => {
+                                            // Skip empty lines
+                                            if (!line.trim()) {
+                                                return <div key={index} className="my-2"></div>;
+                                            }
+                                            
+                                            // Check if line looks like a mathematical expression or calculation
+                                            if (line.match(/^[\s\d\w\+\-\*\/\(\)\[\]\{\}\=\.\,\:\>\<\!\|\&\^\%\#\@\~\`\$\;\?]+$/g) && 
+                                                (line.includes('=') || line.includes('+') || line.includes('-') || line.includes('*') || line.includes('/') || 
+                                                line.includes('^') || line.includes('√') || line.includes('∑') || line.includes('∫') || 
+                                                line.includes('lim') || line.includes('log') || line.includes('ln'))) {
+                                                return (
+                                                    <div key={index} className="bg-gray-900/90 p-5 rounded-lg my-4 border border-cyan-700/50 shadow-lg">
+                                                        <div className="flex">
+                                                            <div className="text-cyan-400 font-mono text-lg mr-4 select-none">{'>'}</div>
+                                                            <code className="font-mono text-lg text-gray-200 whitespace-pre-wrap break-words">{line}</code>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                            // Check if line looks like a header/section title
+                                            else if (line.match(/^[\d]+\.[\d\s\w]+/) || line.startsWith('**') || line.endsWith(':')) {
+                                                return <h4 key={index} className="font-bold text-xl text-cyan-300 mt-6 mb-3 border-b border-cyan-700/30 pb-2">{line.replace(/\*\*/g, '')}</h4>;
+                                            }
+                                            // Regular paragraph text
+                                            else {
+                                                return <p key={index} className="mb-4 text-gray-300">{line}</p>;
+                                            }
+                                        })}
+                                    </div>
+                                </div>
+                            </Section>
                         </div>
-                    </Section>
+                    )}
                 </div>
             )}
         </div>
