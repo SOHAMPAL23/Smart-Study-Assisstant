@@ -9,15 +9,20 @@ lerna-debug.log*
 
 # Dependency directories
 node_modules/
+frontend/node_modules/
+backend/node_modules/
 
 # Distribution files
 dist/
+frontend/dist/
 dist-ssr/
 *.local
 
 # Environment files
 .env*
 !.env.example
+frontend/.env*
+backend/.env*
 
 # Editor directories and files
 .vscode/*
@@ -45,3 +50,15 @@ Icon?
 *.iml
 *.ipr
 *.iws
+
+# Database files
+*.db
+*.sqlite
+
+# Coverage reports
+coverage/
+*.coverage
+
+# Temporary files
+*.tmp
+*.temp

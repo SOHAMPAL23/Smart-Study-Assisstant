@@ -1,22 +1,19 @@
 {
   "name": "ai-study-assistant",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "AI Study Assistant with separate frontend and backend",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && npm run dev",
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "build": "cd frontend && npm run build"
   },
   "dependencies": {
-    "@google/genai": "^1.29.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "concurrently": "^8.2.0"
   },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
-  }
+  "keywords": ["ai", "study", "assistant"],
+  "author": "Soham Pal",
+  "license": "MIT"
 }
