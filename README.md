@@ -2,8 +2,11 @@
 
 An intelligent study companion powered by Google's Gemini AI that helps students learn efficiently through topic summarization, quizzes, flashcards, and personalized study tips.
 
+<<<<<<< HEAD
 ![AI Study Assistant Demo](https://placehold.co/800x400.png?text=AI+Study+Assistant+Demo)
 
+=======
+>>>>>>> a89ebbf2b1d7b807bab985b16938060edd0e2f2d
 ## 📋 Table of Contents
 - [Features](#-features)
 - [Architecture](#-architecture)
@@ -216,4 +219,5 @@ Ensure your `API_KEY` environment variable is set in your deployment environment
 **Institution:** Polaris School of Technology, Bangalore  
 **Specialization:** B.Tech in CSE (AI & ML)  
 **GitHub:** [SOHAMPAL23](https://github.com/SOHAMPAL23)  
-**LinkedIn:** [Soham Pal](https://www.linkedin.com/in/soham-pal-075157310/)
+**LinkedIn:** [Soham Pal](https://www.linkedin.com/in/soham-pal-075157310/)   
+**Google Docs** [Soham Pal](https://docs.google.com/document/d/1QErtAJIevNF7Ctt8sCVmOT_zLuUfDWiuyASxczjJGOI/edit?usp=sharing)
