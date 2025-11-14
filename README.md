@@ -179,5 +179,5 @@ Ensure your `API_KEY` environment variable is set in your deployment environment
 **Institution:** Polaris School of Technology, Bangalore  
 **Specialization:** B.Tech in CSE (AI & ML)  
 **GitHub:** [SOHAMPAL23](https://github.com/SOHAMPAL23)  
-**LinkedIn:** [Soham Pal](https://www.linkedin.com/in/soham-pal-075157310/)
+**LinkedIn:** [Soham Pal](https://www.linkedin.com/in/soham-pal-075157310/)   
 **Google Docs** [Soham Pal](https://docs.google.com/document/d/1QErtAJIevNF7Ctt8sCVmOT_zLuUfDWiuyASxczjJGOI/edit?usp=sharing)
