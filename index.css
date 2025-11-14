@@ -1,0 +1,82 @@
+/* Additional CSS for enhanced UI components */
+
+/* Enhanced 3D flip effect for flashcards */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Glassmorphism effect */
+.glassmorphism {
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(2, 12, 26, 0.37);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Animation enhancements */
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fade-slide-in 0.5s ease-out forwards;
+}
+
+@keyframes blink-cursor {
+  50% { opacity: 0; }
+}
+
+.blinking-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 1.2rem;
+  background-color: #67e8f9;
+  animation: blink-cursor 1s step-end infinite;
+  vertical-align: bottom;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .truncate {
+    max-width: 80px;
+  }
+}

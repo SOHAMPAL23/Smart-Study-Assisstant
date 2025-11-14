@@ -2,7 +2,7 @@
 
 An intelligent study companion powered by Google's Gemini AI that helps students learn efficiently through topic summarization, quizzes, flashcards, and personalized study tips.
 
-![AI Study Assistant Demo](https://placehold.co/800x400.png?text=AI+Study+Assistant+Demo)
+![AI Study Assistant Demo](c:\Users\Soham\AppData\Local\Packages\Microsoft.ScreenSketch_8wekyb3d8bbwe\TempState\Recordings\20251114-0438-17.8279102.mp4)
 
 ## 📋 Table of Contents
 - [Features](#-features)

@@ -22,18 +22,30 @@ const FlashcardCard: React.FC<{ card: Flashcard }> = ({ card }) => {
     const [isFlipped, setIsFlipped] = useState(false);
 
     return (
-        <div className="perspective-1000 w-full h-48" onClick={() => setIsFlipped(!isFlipped)}>
+        <div className="perspective-1000 w-full h-48 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
             <div
                 className={`relative w-full h-full transform-style-3d transition-transform duration-700 ${isFlipped ? 'rotate-y-180' : ''}`}
                 style={{ transformStyle: 'preserve-3d' }}
             >
                 {/* Front */}
-                <div className="absolute w-full h-full backface-hidden flex items-center justify-center p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-md">
-                    <p className="text-center text-lg">{card.front}</p>
+                <div className="absolute w-full h-full backface-hidden flex items-center justify-center p-4 bg-gradient-to-br from-cyan-900/80 to-blue-900/80 border border-cyan-700 rounded-xl shadow-lg flex-col">
+                    <div className="bg-cyan-700/30 rounded-full p-2 mb-3">
+                        <svg className="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <p className="text-center text-lg font-medium text-cyan-100">Question</p>
+                    <p className="text-center text-cyan-200 mt-2">{card.front}</p>
                 </div>
                 {/* Back */}
-                <div className="absolute w-full h-full backface-hidden rotate-y-180 flex items-center justify-center p-4 bg-cyan-900/80 border border-cyan-700 rounded-lg shadow-lg">
-                    <p className="text-center text-cyan-200">{card.back}</p>
+                <div className="absolute w-full h-full backface-hidden rotate-y-180 flex items-center justify-center p-4 bg-gradient-to-br from-green-900/80 to-emerald-900/80 border border-green-700 rounded-xl shadow-lg flex-col">
+                    <div className="bg-green-700/30 rounded-full p-2 mb-3">
+                        <svg className="w-6 h-6 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <p className="text-center text-lg font-medium text-green-100">Answer</p>
+                    <p className="text-center text-green-200 mt-2">{card.back}</p>
                 </div>
             </div>
         </div>
@@ -45,11 +57,37 @@ const QuizCard: React.FC<{ question: QuizQuestion; index: number }> = ({ questio
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const isAnswered = selectedOption !== null;
 
+  // Extract option letter from option text (handles formats like 'A)', 'A.', 'A Option', etc.)
+  const extractOptionLetter = (option: string): string => {
+    const match = option.trim().match(/^([A-Za-z])/);
+    return match ? match[1].toUpperCase() : '';
+  };
+
+  // Extract correct answer letter
+  const correctAnswerLetter = extractOptionLetter(question.answer);
+
   const getOptionBgClass = (option: string) => {
-    if (!isAnswered) return 'bg-gray-700 hover:bg-cyan-800/60';
-    const optionLetter = option.split('.')[0];
-    if (optionLetter === question.answer) return 'bg-green-500/80 border-green-400';
-    if (optionLetter === selectedOption) return 'bg-red-500/80 border-red-400';
+    // State before selection
+    if (!isAnswered) {
+      return 'bg-gray-700 hover:bg-cyan-800/60';
+    }
+
+    // States after selection
+    const optionLetter = extractOptionLetter(option);
+    const isThisOptionTheCorrectAnswer = optionLetter === correctAnswerLetter;
+    const wasThisOptionSelectedByUser = selectedOption === optionLetter;
+
+    if (isThisOptionTheCorrectAnswer) {
+      // Always highlight the correct answer in green once any option is selected.
+      return 'bg-green-500/90 border-green-400 text-white font-bold';
+    }
+    
+    if (wasThisOptionSelectedByUser) {
+      // If this option was selected, but we reached here, it must be incorrect. Highlight in red.
+      return 'bg-red-500/90 border-red-400 text-white font-bold';
+    }
+
+    // Any other option is an unselected, incorrect one. Fade it out.
     return 'bg-gray-700 opacity-60';
   };
 
@@ -58,7 +96,7 @@ const QuizCard: React.FC<{ question: QuizQuestion; index: number }> = ({ questio
       <p className="font-semibold text-lg mb-4">{index + 1}. {question.question}</p>
       <div className="space-y-3">
         {question.options.map((option, i) => {
-          const optionLetter = option.split('.')[0];
+          const optionLetter = extractOptionLetter(option);
           return (
           <button
             key={i}
@@ -66,14 +104,62 @@ const QuizCard: React.FC<{ question: QuizQuestion; index: number }> = ({ questio
             className={`w-full text-left p-3 rounded-md transition-colors duration-200 border ${getOptionBgClass(option)} disabled:cursor-not-allowed`}
             disabled={isAnswered}
           >
-            {option}
+            <div className="flex items-center">
+              {isAnswered && optionLetter === correctAnswerLetter && (
+                <svg className="w-5 h-5 mr-2 text-green-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              )}
+              {isAnswered && selectedOption === optionLetter && optionLetter !== correctAnswerLetter && (
+                <svg className="w-5 h-5 mr-2 text-red-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              )}
+              <span>{option}</span>
+            </div>
           </button>
         )})}
       </div>
       {isAnswered && (
-        <div className="mt-4 p-3 bg-gray-900/70 rounded-md animate-fade-slide-in">
-          <p className="font-bold text-cyan-300">Explanation:</p>
-          <p className="text-gray-300">{question.explanation}</p>
+        <div className="mt-4 p-4 rounded-md animate-fade-slide-in border-l-4">
+          {selectedOption === correctAnswerLetter ? (
+              <div className="border-l-green-500 bg-green-900/30">
+                <p className="font-bold text-green-400 mb-2 flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Correct! Well done.
+                </p>
+              </div>
+          ) : (
+              <div>
+                <div className="border-l-red-500 bg-red-900/30 mb-3">
+                  <p className="font-bold text-red-400 mb-2 flex items-center">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Your answer is incorrect.
+                  </p>
+                </div>
+                <div className="border-l-green-500 bg-green-900/30">
+                  <p className="font-bold text-green-400 mb-2 flex items-center">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Correct answer: {question.answer}
+                  </p>
+                </div>
+              </div>
+          )}
+          <div className="mt-3">
+            <p className="font-bold text-cyan-300 flex items-center">
+              <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Explanation:
+            </p>
+            <p className="text-gray-300 mt-1">{question.explanation}</p>
+          </div>
         </div>
       )}
     </div>
@@ -108,25 +194,41 @@ const MathQuestionDisplay: React.FC<{ data: MathStudyData }> = ({ data }) => {
     return(
         <div className="space-y-8">
             <Section title="Quantitative Question" icon={<CalculatorIcon className="w-6 h-6"/>}>
-                <div className="bg-gray-800/50 p-6 rounded-lg shadow-lg border border-gray-700">
-                    <p className="text-lg whitespace-pre-wrap">{data.question}</p>
+                <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 p-6 rounded-lg shadow-lg border border-gray-700">
+                    <div className="flex items-start mb-3">
+                        <div className="bg-amber-500/20 p-2 rounded-lg mr-3">
+                            <CalculatorIcon className="w-5 h-5 text-amber-400" />
+                        </div>
+                        <p className="text-lg font-medium text-amber-300">Solve this problem:</p>
+                    </div>
+                    <p className="text-lg whitespace-pre-wrap text-gray-200">{data.question}</p>
                 </div>
             </Section>
             {!showAnswer && (
-                <button onClick={() => setShowAnswer(true)} className="w-full px-6 py-3 text-base font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 transition duration-200">
-                    Show Answer
+                <button onClick={() => setShowAnswer(true)} className="w-full px-6 py-4 text-base font-medium rounded-lg text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/20 flex items-center justify-center">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    Show Solution
                 </button>
             )}
             {showAnswer && (
                 <div className="animate-fade-slide-in space-y-8">
                     <Section title="Answer" icon={<BookOpenCheckIcon className="w-6 h-6"/>}>
-                        <div className="bg-green-900/30 border-l-4 border-green-400 p-4 rounded-r-lg">
-                           <p className="text-green-200 font-bold text-lg">{data.answer}</p>
+                        <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border-l-4 border-green-500 p-5 rounded-r-lg">
+                           <p className="text-green-200 font-bold text-xl">{data.answer}</p>
                         </div>
                     </Section>
                     <Section title="Explanation" icon={<SparklesIcon className="w-6 h-6"/>}>
-                         <div className="bg-gray-800/50 p-6 rounded-lg shadow-lg border border-gray-700">
-                            <p className="whitespace-pre-wrap">{data.explanation}</p>
+                         <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 p-6 rounded-lg shadow-lg border border-gray-700">
+                            <div className="flex items-start mb-3">
+                                <div className="bg-cyan-500/20 p-2 rounded-lg mr-3">
+                                    <SparklesIcon className="w-5 h-5 text-cyan-400" />
+                                </div>
+                                <p className="font-medium text-cyan-300">Step-by-step solution:</p>
+                            </div>
+                            <p className="whitespace-pre-wrap text-gray-300">{data.explanation}</p>
                         </div>
                     </Section>
                 </div>
@@ -192,37 +294,52 @@ const App: React.FC = () => {
   }, [topic, isLoading, mode]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 font-sans bg-gradient-to-br from-gray-900 to-gray-950">
       <div className="w-full max-w-4xl mx-auto">
         <header className="text-center my-8">
           <div className="flex justify-center items-center gap-4">
-            <BrainCircuitIcon className="h-10 w-10 text-cyan-400" />
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-500">
+            <div className="bg-cyan-500/10 p-3 rounded-2xl">
+              <BrainCircuitIcon className="h-12 w-12 text-cyan-400" />
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
               AI Study Assistant
             </h1>
           </div>
-          <p className="mt-4 text-lg text-gray-400">
+          <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">
             Your personal AI tutor. Master any topic, faster.
           </p>
         </header>
 
         <main>
-          <div className="bg-gray-800/50 p-6 rounded-2xl shadow-2xl border border-gray-700/50 backdrop-blur-sm mb-8">
+          <div className="bg-gray-800/40 p-6 rounded-2xl shadow-2xl border border-gray-700/50 backdrop-blur-sm mb-8 glassmorphism">
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col sm:flex-row gap-4 items-center">
-                <input
-                  id="topic-input"
-                  type="text"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="e.g., 'Quantum Computing', 'Stoic Philosophy'..."
-                  className="flex-grow w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200"
-                  disabled={isLoading}
-                />
+                <div className="flex-grow w-full relative">
+                  <input
+                    id="topic-input"
+                    type="text"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    placeholder="e.g., 'Quantum Computing', 'Stoic Philosophy'..."
+                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 backdrop-blur-sm"
+                    disabled={isLoading}
+                  />
+                  {topic && (
+                    <button 
+                      type="button" 
+                      onClick={() => setTopic('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  )}
+                </div>
                 <button
                   type="submit"
                   disabled={isLoading || !topic.trim()}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition duration-200"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   <SparklesIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
                   {isLoading ? 'Generating...' : 'Generate'}
@@ -230,24 +347,35 @@ const App: React.FC = () => {
               </div>
               <div className="flex items-center justify-between mt-4">
                 <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <CalculatorIcon className="w-5 h-5" />
+                  <div className="bg-amber-500/20 p-1.5 rounded-lg">
+                    <CalculatorIcon className="w-4 h-4 text-amber-400" />
+                  </div>
                   <span>Math Mode</span>
                   <label htmlFor="mode-toggle" className="flex items-center cursor-pointer">
                     <div className="relative">
                       <input type="checkbox" id="mode-toggle" className="sr-only" checked={mode === 'math'} onChange={() => setMode(m => m === 'normal' ? 'math' : 'normal')} />
-                      <div className={`block w-10 h-6 rounded-full ${mode === 'math' ? 'bg-cyan-600' : 'bg-gray-600'}`}></div>
-                      <div className="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+                      <div className={`block w-12 h-6 rounded-full transition-colors duration-300 ${mode === 'math' ? 'bg-cyan-600' : 'bg-gray-600'}`}></div>
+                      <div className={`absolute top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ${mode === 'math' ? 'transform translate-x-7' : 'translate-x-1'}`}></div>
                     </div>
                   </label>
                 </div>
                 {topicHistory.length > 0 && (
                     <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <HistoryIcon className="w-5 h-5"/>
-                        {topicHistory.map(item => (
-                            <button key={item} onClick={() => handleHistoryClick(item)} className="bg-gray-700/50 hover:bg-gray-600/50 px-2 py-1 rounded-md text-xs">
-                                {item}
-                            </button>
-                        ))}
+                        <div className="bg-gray-700/50 p-1.5 rounded-lg">
+                          <HistoryIcon className="w-4 h-4 text-gray-400" />
+                        </div>
+                        <div className="flex gap-2 flex-wrap max-w-[200px]">
+                            {topicHistory.map(item => (
+                                <button 
+                                  key={item} 
+                                  onClick={() => handleHistoryClick(item)} 
+                                  className="bg-gray-700/50 hover:bg-gray-600/50 px-2 py-1 rounded-md text-xs transition-colors duration-200 truncate max-w-[100px]"
+                                  title={item}
+                                >
+                                    {item}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 )}
               </div>
@@ -256,8 +384,18 @@ const App: React.FC = () => {
 
           <div className="mt-8">
             {isLoading && (
-              <div className="bg-gray-800/50 p-6 rounded-lg font-mono text-gray-300 whitespace-pre-wrap">
-                {streamingResponse}<span className="blinking-cursor"></span>
+              <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 p-6 rounded-xl font-mono text-gray-300 whitespace-pre-wrap border border-gray-700/50 backdrop-blur-sm">
+                <div className="flex items-center mb-3">
+                  <div className="bg-cyan-500/20 p-2 rounded-lg mr-3">
+                    <svg className="w-5 h-5 text-cyan-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                  </div>
+                  <p className="font-medium text-cyan-300">AI is generating your study material...</p>
+                </div>
+                <div className="text-gray-400">
+                  {streamingResponse}<span className="blinking-cursor ml-1"></span>
+                </div>
               </div>
             )}
             {error && !isLoading && <ErrorMessage message={error} />}
